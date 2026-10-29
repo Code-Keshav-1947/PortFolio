@@ -1,26 +1,342 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: #ef4444;
+
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Light Theme ─── */
+:root {
+  --background: #faf9f7;
+  --foreground: #0a0f1a;
+  --card: #ffffff;
+  --card-foreground: #0a0f1a;
+  --primary: #d97706;
+  --primary-foreground: #ffffff;
+  --secondary: #f0ece4;
+  --secondary-foreground: #1a1a2e;
+  --muted: #f0ece4;
+  --muted-foreground: #6b7084;
+  --border: #e2ddd4;
+  --accent: #0d9488;
+  --accent-foreground: #0d9488;
+  --ring: #d97706;
+
+  --glow-primary: rgba(217, 119, 6, 0.12);
+  --glow-accent: rgba(13, 148, 136, 0.10);
+  --surface-elevated: rgba(255, 255, 255, 0.9);
+}
+
+/* ─── Dark Theme ─── */
+.dark {
+  --background: #060b18;
+  --foreground: #e8ecf4;
+  --card: #0c1222;
+  --card-foreground: #e8ecf4;
+  --primary: #f59e0b;
+  --primary-foreground: #060b18;
+  --secondary: #131c30;
+  --secondary-foreground: #e8ecf4;
+  --muted: #131c30;
+  --muted-foreground: #7a8599;
+  --border: #1a2540;
+  --accent: #14b8a6;
+  --accent-foreground: #14b8a6;
+  --ring: #f59e0b;
+
+  --glow-primary: rgba(245, 158, 11, 0.08);
+  --glow-accent: rgba(20, 184, 166, 0.06);
+  --surface-elevated: rgba(12, 18, 34, 0.85);
+}
+
+/* ─── Base Reset ─── */
+* {
+  border-color: var(--border);
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* ─── Typography ─── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* ─── Glassmorphism ─── */
+.glass-panel {
+  background: var(--surface-elevated);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+}
+
+/* ─── Subtle Grid ─── */
+.tech-grid-bg {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -1px -1px;
+  opacity: 0.4;
+}
+
+/* ─── Section Label ─── */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+  border-left: 2px solid var(--primary);
+  background: var(--glow-primary);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─── Headline Decoration ─── */
+.headline-accent {
+  position: relative;
+  display: inline;
+}
+.headline-accent::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* ─── Divider ─── */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ─── Glow Effects ─── */
+.glow-primary {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--glow-primary);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glow-accent {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--glow-accent);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ─── Card Hover ─── */
+.card-interactive {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-interactive:hover {
+  border-color: color-mix(in oklch, var(--primary), transparent 60%);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary), transparent 85%), 0 8px 32px -12px rgba(0, 0, 0, 0.15);
+}
+.dark .card-interactive:hover {
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary), transparent 85%), 0 8px 32px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* ─── Link Underline ─── */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ─── Animations ─── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes line-grow {
+  from { width: 0; }
+  to { width: 48px; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* ─── Stagger Delay Utilities ─── */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ─── Focus Visible ─── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Responsive Type Scale ─── */
+@media (max-width: 640px) {
+  .hero-headline {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+}
+
+/* ─── Custom Cursor Rules ─── */
+@media (pointer: fine) and (hover: hover) {
+  html.custom-cursor-enabled,
+  html.custom-cursor-enabled body,
+  html.custom-cursor-enabled a,
+  html.custom-cursor-enabled button,
+  html.custom-cursor-enabled [role="button"],
+  html.custom-cursor-enabled [data-cursor-interactive] {
+    cursor: none !important;
+  }
+
+  /* CRITICAL: Preserves native text/I-beam cursor on form inputs, textareas, and code selection */
+  html.custom-cursor-enabled input,
+  html.custom-cursor-enabled textarea,
+  html.custom-cursor-enabled select,
+  html.custom-cursor-enabled [contenteditable="true"] {
+    cursor: text !important;
+  }
+
+  html.custom-cursor-enabled input[type="button"],
+  html.custom-cursor-enabled input[type="submit"],
+  html.custom-cursor-enabled input[type="reset"] {
+    cursor: none !important;
+  }
+
+  html.custom-cursor-enabled input[type="checkbox"],
+  html.custom-cursor-enabled input[type="radio"],
+  html.custom-cursor-enabled input[type="range"] {
+    cursor: pointer !important;
+  }
 }
