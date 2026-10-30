@@ -12,7 +12,9 @@ interface SectionRevealProps {
   amount?: number;
 }
 
-export const easeCustom = [0.21, 0.47, 0.32, 0.98] as const;
+import { LUXURY_EASE } from "@/lib/animation";
+
+export const easeCustom = LUXURY_EASE;
 
 export function SectionReveal({
   children,

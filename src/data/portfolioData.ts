@@ -1,39 +1,14 @@
-export interface Project {
-  id: string;
-  title: string;
-  tagline: string;
-  description: string;
-  category: "Full-Stack" | "Backend / API" | "Security / Cryptography" | "Scientific / Simulation";
-  tags: string[];
-  features: string[];
-  repoUrl: string;
-  liveUrl?: string;
-  isVerified: boolean;
-  statusText?: string;
-}
+import type {
+  Project,
+  SkillCategory,
+  TechnicalInterest,
+  PortfolioData,
+} from "@/types";
 
-export interface SkillCategory {
-  title: string;
-  description: string;
-  badge: string;
-  skills: {
-    name: string;
-    level?: string;
-    note?: string;
-  }[];
-}
+// Re-export domain interfaces for backward-compatibility with existing imports
+export type { Project, SkillCategory, TechnicalInterest, PortfolioData };
 
-export interface TechnicalInterest {
-  id: string;
-  title: string;
-  category: "Mathematics" | "Physics & Science" | "Cybersecurity & Cryptography";
-  iconName: string;
-  description: string;
-  topics: string[];
-  relevance: string;
-}
-
-export const portfolioData = {
+export const portfolioData: PortfolioData = {
   personal: {
     name: "Keshav Sharma",
     handle: "Code-Keshav-1947",
@@ -44,8 +19,6 @@ export const portfolioData = {
     email: "code.keshav.1947@gmail.com",
     availability: "Available for freelance, full-time roles & technical collaborations",
     githubUrl: "https://github.com/Code-Keshav-1947",
-    linkedinUrl: "https://linkedin.com/in/code-keshav-placeholder", // Replace with your LinkedIn URL
-    twitterUrl: "https://x.com/code_keshav_placeholder", // Replace with your Twitter / X URL
     bio: [
       "I am a full-stack developer driven by first-principles thinking and technical rigor. Rather than treating frameworks as black boxes, I focus on understanding underlying data structures, API contracts, protocols, and defensive security postures.",
       "My technical interests extend beyond routine web development into mathematics (linear algebra, calculus, probability), foundational physics (Lagrangian and quantum mechanics), and cryptography. This broad lens sharpens my approach to software architecture, algorithmic efficiency, and resilient system design.",
@@ -77,10 +50,13 @@ export const portfolioData = {
       skills: [
         { name: "Full-Stack Architecture", note: "End-to-end web system design" },
         { name: "React", note: "SPA development, hooks, state management" },
+        { name:"Next.js", note: "Server-side rendering, routing, and API routes" },
         { name: "Angular", note: "Component-based architecture & TypeScript" },
         { name: "Vue", note: "Reactive components & modern tooling" },
         { name: "Node.js", note: "Asynchronous runtime, Express, REST APIs" },
+        { name: "Express.js", note: "Middleware, routing, and RESTful services" },
         { name: "Django & DRF", note: "MVC patterns, ORM, RESTful endpoints" },
+        { name: "Flask", note: "Lightweight Python web framework for APIs" },
         { name: "PostgreSQL", note: "Relational modeling, indexing & queries" },
         { name: "MongoDB", note: "Document store & dynamic schemas" },
         { name: "MySQL", note: "Relational database schema & transactions" },
@@ -99,6 +75,11 @@ export const portfolioData = {
         { name: "HTML5 & Semantic Web", note: "Accessible, standards-compliant markup" },
         { name: "CSS3 & Modern Layouts", note: "Flexbox, Grid, custom properties, responsive design" },
         { name: "Markdown", note: "Technical documentation & structured content" },
+        { name: "Bash & Shell Scripting", note: "Automation, file manipulation, and system tasks" },
+        { name: "Git & Version Control", note: "Branching, merging, and collaborative workflows" },
+        { name: "Docker & Containerization", note: "Isolated environments, reproducible builds, and deployment" },
+        { name: "Linux & Unix Systems", note: "Command-line proficiency, process management, and system administration" },
+        { name: "RESTful API Design", note: "HTTP methods, status codes, and resource modeling" },
       ],
     },
     {
@@ -110,6 +91,7 @@ export const portfolioData = {
         { name: "Calculus", note: "Differential & integral calculus, rates of change, optimization" },
         { name: "Probability & Statistics", note: "Stochastic processes, distributions, data reasoning" },
         { name: "Euclidean Geometry", note: "Geometric proofs, spatial transformations, coordinate systems" },
+        { name: "Trigonometry", note: "Sine, cosine, tangent functions, and their applications" },
       ],
     },
     {
@@ -120,6 +102,11 @@ export const portfolioData = {
         { name: "Newtonian Mechanics", note: "Classical dynamics, kinematics, conservation laws" },
         { name: "Lagrangian Mechanics", note: "Principle of least action, generalized coordinates" },
         { name: "Quantum Mechanics", note: "Wave functions, state spaces, superposition concepts" },
+        { name: "Electromagnetism", note: "Maxwell's equations, fields, and wave propagation" },
+        { name: "Thermodynamics", note: "Energy transfer, entropy, and statistical mechanics" },
+        { name: "Fluid Dynamics", note: "Navier-Stokes equations, flow modeling, and turbulence" },
+        { name: "Optics & Wave Phenomena", note: "Light propagation, interference, diffraction, and polarization" },
+
       ],
     },
     {
@@ -132,6 +119,8 @@ export const portfolioData = {
         { name: "Penetration Testing", note: "Vulnerability scanning, ethical assessment" },
         { name: "Cryptography", note: "Symmetric & asymmetric ciphers, hashing, PKI" },
         { name: "Post-Quantum Cryptography", note: "Lattice-based & quantum-resistant schemes" },
+        { name: "TLS/SSL Protocols", note: "Secure communication, certificate management, and handshakes" },
+        { name:"Bug Bounty & Responsible Disclosure", note: "Ethical reporting, CVE submissions, and security advisories" },
       ],
     },
   ] as SkillCategory[],

@@ -7,8 +7,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { LUXURY_EASE } from "@/lib/animation";
 
-const ease = [0.21, 0.47, 0.32, 0.98] as const;
+const ease = LUXURY_EASE;
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

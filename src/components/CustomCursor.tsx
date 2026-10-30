@@ -1,7 +1,62 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import type { CursorMode } from "@/types";
 
+const subscribePointerQuery = (callback: () => void) => {
+  const mqPointer = window.matchMedia("(pointer: fine)");
+  const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mqPointer.addEventListener("change", callback);
+  mqMotion.addEventListener("change", callback);
+  return () => {
+    mqPointer.removeEventListener("change", callback);
+    mqMotion.removeEventListener("change", callback);
+  };
+};
+
+const getPointerSnapshot = () => {
+  const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+  return hasFinePointer && !prefersReducedMotion;
+};
+
+const getServerPointerSnapshot = () => false;
+
+/**
+ * Custom Cursor Configuration Constants.
+ * Centralized here so timing, sizes, and physics can be adjusted in one place.
+ */
+const CURSOR_CONFIG = {
+  /** Linear interpolation factor for delayed ring follower (0.1 = heavy inertia, 0.3 = tight follow) */
+  lerpFactor: 0.16,
+  /** Magnetic element translation attenuation */
+  magneticPull: 0.28,
+  /** Maximum pixel offset for magnetic element attraction */
+  magneticMaxDistance: 7,
+  /** Ring dimensions across interaction modes */
+  dimensions: {
+    action: 72,
+    hover: 50,
+    default: 34,
+    clicking: 26,
+  },
+} as const;
+
+/**
+ * CustomCursor Component
+ *
+ * Implements a dual-layer hardware cursor replacement:
+ * 1. Primary Dot: Updates synchronously with clientX/clientY for zero-perceived latency.
+ * 2. Trailing Ring: Follows with fluid exponential smoothing (LERP).
+ *
+ * Features:
+ * - Automatically pauses RAF when mouse is idle to save battery and GPU cycles.
+ * - Respects prefers-reduced-motion and coarse touch pointers (disabled on tablets/phones).
+ * - Restores native I-beam cursor on text inputs and textareas automatically.
+ * - Supports [data-cursor-label="XYZ"] badges and [data-magnetic] pull effects.
+ */
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -9,23 +64,20 @@ export function CustomCursor() {
   const dotInnerRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
 
-  const [isEnabled, setIsEnabled] = useState(false);
+  const isEnabled = useSyncExternalStore(
+    subscribePointerQuery,
+    getPointerSnapshot,
+    getServerPointerSnapshot
+  );
 
   useEffect(() => {
-    // 1. Accessibility & Hardware checks
-    const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (!hasFinePointer || prefersReducedMotion) {
+    if (!isEnabled) {
       return;
     }
 
-    setIsEnabled(true);
     document.documentElement.classList.add("custom-cursor-enabled");
 
-    // Coordinate storage (never in React state to avoid frame re-renders)
+    // Coordinate storage (kept outside React state to avoid 60-120fps component rerenders)
     const mouse = { x: -100, y: -100 };
     const ring = { x: -100, y: -100 };
     let isVisible = false;
@@ -33,52 +85,53 @@ export function CustomCursor() {
     let isRafRunning = false;
     let rafId = 0;
 
-    // Interaction state
-    type CursorMode = "default" | "hover" | "action" | "text-hide";
     let currentMode: CursorMode = "default";
     let currentLabel = "";
-
-    // Magnetic target tracking
     let currentMagneticEl: HTMLElement | null = null;
 
-    const LERP_FACTOR = 0.16; // Perfectly tuned: responsive yet with luxurious inertia
-
+    /**
+     * Applies styling to the cursor ring and inner dot based on interaction state.
+     */
     const updateVisualStyles = (mode: CursorMode, label: string) => {
       const ringInner = ringInnerRef.current;
       const dotInner = dotInnerRef.current;
       const labelEl = labelRef.current;
+      const ringContainer = ringRef.current;
+      const dotContainer = dotRef.current;
 
-      if (!ringInner || !dotInner || !labelEl) return;
+      if (!ringInner || !dotInner || !labelEl || !ringContainer || !dotContainer) {
+        return;
+      }
 
       if (mode === "text-hide") {
-        ringRef.current!.style.opacity = "0";
-        dotRef.current!.style.opacity = "0";
+        ringContainer.style.opacity = "0";
+        dotContainer.style.opacity = "0";
         return;
       }
 
       if (isVisible) {
-        ringRef.current!.style.opacity = "1";
-        dotRef.current!.style.opacity = "1";
+        ringContainer.style.opacity = "1";
+        dotContainer.style.opacity = "1";
       }
 
       if (mode === "action") {
-        // Expanded ring with action label
-        ringInner.style.width = "72px";
-        ringInner.style.height = "72px";
+        // Expanded ring with contextual text label (e.g., "DRAG 3D", "VIEW")
+        ringInner.style.width = `${CURSOR_CONFIG.dimensions.action}px`;
+        ringInner.style.height = `${CURSOR_CONFIG.dimensions.action}px`;
         ringInner.style.backgroundColor = "var(--surface-elevated)";
         ringInner.style.borderColor = "var(--primary)";
         ringInner.style.boxShadow = "0 8px 24px -4px rgba(0,0,0,0.3)";
         ringInner.style.backdropFilter = "blur(8px)";
-        
+
         dotInner.style.opacity = "0";
         dotInner.style.transform = "scale(0)";
 
         labelEl.textContent = label;
         labelEl.style.opacity = "1";
       } else if (mode === "hover") {
-        // Expanded hover ring
-        ringInner.style.width = "50px";
-        ringInner.style.height = "50px";
+        // Expanded interactive hover ring
+        ringInner.style.width = `${CURSOR_CONFIG.dimensions.hover}px`;
+        ringInner.style.height = `${CURSOR_CONFIG.dimensions.hover}px`;
         ringInner.style.backgroundColor = "rgba(245, 158, 11, 0.08)";
         ringInner.style.borderColor = "var(--primary)";
         ringInner.style.boxShadow = "0 0 16px rgba(245, 158, 11, 0.15)";
@@ -90,9 +143,12 @@ export function CustomCursor() {
         labelEl.textContent = "";
         labelEl.style.opacity = "0";
       } else {
-        // Default state
-        ringInner.style.width = isClicking ? "26px" : "34px";
-        ringInner.style.height = isClicking ? "26px" : "34px";
+        // Default resting state
+        const size = isClicking
+          ? CURSOR_CONFIG.dimensions.clicking
+          : CURSOR_CONFIG.dimensions.default;
+        ringInner.style.width = `${size}px`;
+        ringInner.style.height = `${size}px`;
         ringInner.style.backgroundColor = "transparent";
         ringInner.style.borderColor = "rgba(245, 158, 11, 0.4)";
         ringInner.style.boxShadow = "none";
@@ -106,13 +162,15 @@ export function CustomCursor() {
       }
     };
 
+    /**
+     * Animation frame loop for linear interpolation.
+     */
     const renderLoop = () => {
-      // Linear interpolation for delayed secondary circle
       const dx = mouse.x - ring.x;
       const dy = mouse.y - ring.y;
-      
-      ring.x += dx * LERP_FACTOR;
-      ring.y += dy * LERP_FACTOR;
+
+      ring.x += dx * CURSOR_CONFIG.lerpFactor;
+      ring.y += dy * CURSOR_CONFIG.lerpFactor;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${mouse.x}px, ${mouse.y}px, 0) translate(-50%, -50%)`;
@@ -122,12 +180,11 @@ export function CustomCursor() {
         ringRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) translate(-50%, -50%)`;
       }
 
-      // Check if settled (to pause RAF when idle)
+      // Check if ring has caught up to mouse to pause loop when settled
       const distance = Math.hypot(dx, dy);
       if (distance > 0.08 || isClicking) {
         rafId = requestAnimationFrame(renderLoop);
       } else {
-        // Snap exactly to target
         ring.x = mouse.x;
         ring.y = mouse.y;
         if (ringRef.current) {
@@ -144,9 +201,8 @@ export function CustomCursor() {
       }
     };
 
-    // ─── Pointer Event Handlers ───
+    // --- Pointer Event Listeners ---
     const handlePointerMove = (e: PointerEvent) => {
-      // First move initialization
       if (!isVisible) {
         isVisible = true;
         ring.x = e.clientX;
@@ -161,14 +217,14 @@ export function CustomCursor() {
       mouse.y = e.clientY;
       startLoop();
 
-      // Magnetic effect calculation
+      // Magnetic button attraction
       if (currentMagneticEl) {
         const rect = currentMagneticEl.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const offsetX = (e.clientX - centerX) * 0.28;
-        const offsetY = (e.clientY - centerY) * 0.28;
-        const maxDist = 7;
+        const offsetX = (e.clientX - centerX) * CURSOR_CONFIG.magneticPull;
+        const offsetY = (e.clientY - centerY) * CURSOR_CONFIG.magneticPull;
+        const maxDist = CURSOR_CONFIG.magneticMaxDistance;
         const clampedX = Math.max(-maxDist, Math.min(maxDist, offsetX));
         const clampedY = Math.max(-maxDist, Math.min(maxDist, offsetY));
         currentMagneticEl.style.transform = `translate3d(${clampedX}px, ${clampedY}px, 0)`;
@@ -179,7 +235,7 @@ export function CustomCursor() {
       const target = e.target as HTMLElement | null;
       if (!target || typeof target.closest !== "function") return;
 
-      // 1. Check for text editing inputs (Native cursor preserved)
+      // 1. Text input elements: hide custom cursor and restore native text/I-beam cursor
       const isInput = target.closest(
         'input, textarea, select, [contenteditable="true"]'
       );
@@ -189,7 +245,7 @@ export function CustomCursor() {
         return;
       }
 
-      // 2. Check for contextual action labels (e.g. data-cursor-label="VIEW")
+      // 2. Action badge targets (e.g., data-cursor-label="DRAG 3D")
       const actionEl = target.closest<HTMLElement>("[data-cursor-label]");
       if (actionEl) {
         const label = actionEl.getAttribute("data-cursor-label") || "";
@@ -200,14 +256,14 @@ export function CustomCursor() {
         return;
       }
 
-      // 3. Check for magnetic element
+      // 3. Magnetic target elements
       const magneticEl = target.closest<HTMLElement>("[data-magnetic]");
       if (magneticEl) {
         currentMagneticEl = magneticEl;
         currentMagneticEl.style.transition = "transform 0.1s ease-out";
       }
 
-      // 4. Check for standard clickable/interactive elements
+      // 4. Standard interactive targets (buttons, links)
       const isInteractive = target.closest(
         'button, a, [role="button"], summary, [data-cursor-interactive="true"]'
       );
@@ -218,7 +274,7 @@ export function CustomCursor() {
         return;
       }
 
-      // 5. Default
+      // 5. Default canvas/background
       if (currentMode !== "default") {
         currentMode = "default";
         updateVisualStyles("default", "");
@@ -230,7 +286,6 @@ export function CustomCursor() {
       const target = e.target as HTMLElement | null;
       if (!target || typeof target.closest !== "function") return;
 
-      // Reset magnetic element if left
       const magneticEl = target.closest<HTMLElement>("[data-magnetic]");
       if (magneticEl && currentMagneticEl === magneticEl) {
         currentMagneticEl.style.transition =
@@ -239,7 +294,7 @@ export function CustomCursor() {
         currentMagneticEl = null;
       }
 
-      // Check if leaving window entirely
+      // If pointer leaves window boundary, fade cursor out
       if (!e.relatedTarget) {
         isVisible = false;
         if (ringRef.current && dotRef.current) {
@@ -290,13 +345,13 @@ export function CustomCursor() {
       window.removeEventListener("blur", handleWindowBlur);
       cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isEnabled]);
 
   if (!isEnabled) return null;
 
   return (
     <>
-      {/* ─── Secondary Trailing Ring (Smooth delayed follower) ─── */}
+      {/* Secondary Trailing Ring (Smooth LERP follower) */}
       <div
         ref={ringRef}
         aria-hidden="true"
@@ -310,8 +365,8 @@ export function CustomCursor() {
           ref={ringInnerRef}
           className="flex items-center justify-center rounded-full border border-primary/40 transition-[width,height,background-color,border-color,box-shadow,transform] duration-250 ease-out"
           style={{
-            width: "34px",
-            height: "34px",
+            width: `${CURSOR_CONFIG.dimensions.default}px`,
+            height: `${CURSOR_CONFIG.dimensions.default}px`,
           }}
         >
           <span
@@ -321,7 +376,7 @@ export function CustomCursor() {
         </div>
       </div>
 
-      {/* ─── Primary Cursor Dot (Zero-latency direct follower) ─── */}
+      {/* Primary Cursor Dot (Zero-latency direct follower) */}
       <div
         ref={dotRef}
         aria-hidden="true"

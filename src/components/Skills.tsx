@@ -5,6 +5,7 @@ import { portfolioData, SkillCategory } from "@/data/portfolioData";
 import { Code, Globe, Shield, Binary, Atom } from "lucide-react";
 import { SectionReveal } from "@/components/SectionReveal";
 import { motion, AnimatePresence } from "motion/react";
+import { LUXURY_EASE } from "@/lib/animation";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   "Web Development": <Globe className="w-4 h-4" />,
@@ -93,7 +94,7 @@ export function Skills() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] as const }}
+            transition={{ duration: 0.3, ease: LUXURY_EASE }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
             {filteredCategories.map((category) => (

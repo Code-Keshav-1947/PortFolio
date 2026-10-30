@@ -1,11 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { portfolioData, TechnicalInterest } from "@/data/portfolioData";
 import { Binary, Atom, ShieldCheck, Compass } from "lucide-react";
 import { SectionReveal, StaggerContainer, staggerItem } from "@/components/SectionReveal";
 import { motion } from "motion/react";
+import {
+  TechnicalInterestVisualizer,
+  VisualizerMode,
+} from "@/components/3d/TechnicalInterestVisualizer";
 
 export function TechnicalInterests() {
+  const [activeVisualizerMode, setActiveVisualizerMode] =
+    useState<VisualizerMode>("crypto");
+
+  const getModeFromCategory = (category: string): VisualizerMode => {
+    switch (category) {
+      case "Mathematics":
+        return "math";
+      case "Physics & Science":
+        return "physics";
+      case "Cybersecurity & Cryptography":
+      default:
+        return "crypto";
+    }
+  };
+
   const getIcon = (category: string) => {
     switch (category) {
       case "Mathematics":
@@ -39,7 +59,7 @@ export function TechnicalInterests() {
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-24 sm:pt-32">
         {/* Header */}
         <SectionReveal>
-          <div className="max-w-3xl mb-14">
+          <div className="max-w-3xl mb-12">
             <div className="section-label mb-5">
               <span>Interdisciplinary Inquiry</span>
             </div>
@@ -55,15 +75,34 @@ export function TechnicalInterests() {
           </div>
         </SectionReveal>
 
+        {/* 3D Interactive Workbench Visualizer */}
+        <SectionReveal delay={0.1}>
+          <div className="mb-10">
+            <TechnicalInterestVisualizer
+              activeMode={activeVisualizerMode}
+              onModeChange={(m) => setActiveVisualizerMode(m)}
+            />
+          </div>
+        </SectionReveal>
+
         {/* Interest Cards */}
         <StaggerContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6" staggerDelay={0.12}>
-          {portfolioData.technicalInterests.map((interest: TechnicalInterest, idx) => {
+          {portfolioData.technicalInterests.map((interest: TechnicalInterest) => {
             const accentClass = getCategoryAccent(interest.category);
+            const cardMode = getModeFromCategory(interest.category);
+            const isCardActive = activeVisualizerMode === cardMode;
+
             return (
               <motion.div
                 key={interest.id}
                 variants={staggerItem}
-                className="group flex flex-col justify-between p-6 sm:p-7 rounded-lg border border-border bg-card/30 card-interactive"
+                onClick={() => setActiveVisualizerMode(cardMode)}
+                data-cursor-label="INSPECT"
+                className={`group flex flex-col justify-between p-6 sm:p-7 rounded-lg border transition-all duration-300 cursor-pointer card-interactive ${
+                  isCardActive
+                    ? "border-primary/50 bg-card/60 shadow-[0_0_24px_-8px_rgba(245,158,11,0.2)]"
+                    : "border-border bg-card/30"
+                }`}
               >
                 <div>
                   {/* Icon + Category */}

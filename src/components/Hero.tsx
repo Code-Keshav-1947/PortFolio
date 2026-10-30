@@ -5,7 +5,10 @@ import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { ArrowRight, Mail, ArrowDownRight } from "lucide-react";
 import { motion } from "motion/react";
 
-const ease = [0.21, 0.47, 0.32, 0.98] as const;
+import { HeroVisual3D } from "@/components/3d/HeroVisual3D";
+import { LUXURY_EASE } from "@/lib/animation";
+
+const ease = LUXURY_EASE;
 
 export function Hero() {
   return (
@@ -28,9 +31,9 @@ export function Hero() {
       />
 
       <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 w-full py-28 sm:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-end">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
           {/* ─── Left: Main Content ─── */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-7">
             {/* Status Badge */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -126,46 +129,52 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* ─── Right: Technical Pillars ─── */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.6, ease }}
-            className="lg:col-span-4 flex flex-col gap-4"
-          >
-            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.15em] mb-1">
-              Core Disciplines
-            </div>
+          {/* ─── Right: 3D Centerpiece & Technical Pillars ─── */}
+          <div className="lg:col-span-5 flex flex-col items-center gap-6">
+            {/* 3D Mathematical & Cryptographic Centerpiece */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3, ease }}
+              className="w-full flex justify-center"
+            >
+              <HeroVisual3D />
+            </motion.div>
 
-            {[
-              {
-                label: "Full-Stack Systems",
-                detail: "React · Django · Node.js · APIs",
-                accent: "bg-primary/10 text-primary border-primary/20",
-              },
-              {
-                label: "Defensive Security",
-                detail: "Cryptography · PQC · Auditing",
-                accent: "bg-accent/10 text-accent-foreground border-accent/20",
-              },
-              {
-                label: "Analytical Inquiry",
-                detail: "Linear Algebra · Physics · Calculus",
-                accent: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-              },
-            ].map((pillar, idx) => (
-              <motion.div
-                key={pillar.label}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 + idx * 0.1, ease }}
-                className={`p-4 rounded-lg border ${pillar.accent} backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]`}
-              >
-                <div className="text-sm font-semibold mb-0.5">{pillar.label}</div>
-                <div className="text-xs opacity-70 font-mono">{pillar.detail}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+            {/* Core Disciplines Badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6, ease }}
+              className="w-full grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-3"
+            >
+              {[
+                {
+                  label: "Full-Stack Systems",
+                  detail: "React · Django · APIs",
+                  accent: "bg-primary/10 text-primary border-primary/20",
+                },
+                {
+                  label: "Defensive Security",
+                  detail: "Cryptography · PQC",
+                  accent: "bg-accent/10 text-accent-foreground border-accent/20",
+                },
+                {
+                  label: "Analytical Inquiry",
+                  detail: "Matrices · Dynamics",
+                  accent: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                },
+              ].map((pillar) => (
+                <div
+                  key={pillar.label}
+                  className={`p-3 rounded-lg border ${pillar.accent} backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] text-center sm:text-left`}
+                >
+                  <div className="text-xs font-semibold mb-0.5">{pillar.label}</div>
+                  <div className="text-[11px] opacity-70 font-mono truncate">{pillar.detail}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </div>
 
         {/* ─── Scroll Indicator ─── */}

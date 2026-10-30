@@ -5,6 +5,8 @@ import { Terminal, Shield, Compass } from "lucide-react";
 import { SectionReveal, StaggerContainer, staggerItem } from "@/components/SectionReveal";
 import { motion } from "motion/react";
 
+import { AboutVisualMotif } from "@/components/3d/AboutVisualMotif";
+
 export function About() {
   const icons = [Terminal, Shield, Compass];
 
@@ -33,21 +35,26 @@ export function About() {
               ))}
             </div>
 
-            {/* Location Card */}
-            <div className="mt-10 p-5 rounded-lg border border-border bg-card/40">
-              <div className="flex items-baseline justify-between mb-2">
-                <span className="font-mono text-[10px] text-primary font-semibold uppercase tracking-[0.12em]">
-                  Location
-                </span>
-                <span className="font-mono text-[10px] text-muted-foreground tracking-wider">
-                  UTC+5:30
-                </span>
+            {/* Location Card with 3D Geometric Motif */}
+            <div className="mt-10 p-5 rounded-lg border border-border bg-card/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-baseline justify-between mb-2">
+                  <span className="font-mono text-[10px] text-primary font-semibold uppercase tracking-[0.12em]">
+                    Location
+                  </span>
+                  <span className="font-mono text-[10px] text-muted-foreground tracking-wider">
+                    UTC+5:30
+                  </span>
+                </div>
+                <div className="text-sm font-medium text-foreground">
+                  {portfolioData.personal.location}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1.5">
+                  Open to asynchronous collaboration and global remote teams.
+                </div>
               </div>
-              <div className="text-sm font-medium text-foreground">
-                {portfolioData.personal.location}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1.5">
-                Open to asynchronous collaboration and global remote teams.
+              <div className="shrink-0 flex items-center justify-center">
+                <AboutVisualMotif />
               </div>
             </div>
           </SectionReveal>

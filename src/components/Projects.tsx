@@ -4,8 +4,10 @@ import { useState } from "react";
 import { portfolioData, Project } from "@/data/portfolioData";
 import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { ExternalLink, CheckCircle2, Bookmark, ArrowUpRight } from "lucide-react";
-import { SectionReveal, StaggerContainer, staggerItem } from "@/components/SectionReveal";
+import { SectionReveal } from "@/components/SectionReveal";
 import { motion, AnimatePresence } from "motion/react";
+import { ProjectTiltCard } from "@/components/3d/ProjectTiltCard";
+import { LUXURY_EASE } from "@/lib/animation";
 
 export function Projects() {
   const [filter, setFilter] = useState<"all" | "verified" | "placeholders">("all");
@@ -83,7 +85,7 @@ export function Projects() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] as const }}
+            transition={{ duration: 0.3, ease: LUXURY_EASE }}
           >
             {/* Featured Project — Full Width */}
             {featuredProject && (
@@ -134,7 +136,9 @@ export function Projects() {
 /* ─── Project Card Component ─── */
 function ProjectCard({ project, featured = false }: { project: Project; featured?: boolean }) {
   return (
-    <div
+    <ProjectTiltCard
+      featured={featured}
+      maxTilt={featured ? 5 : 7}
       className={`group flex flex-col justify-between rounded-lg border transition-all duration-300 ${
         featured ? "p-7 sm:p-8" : "p-6"
       } ${
@@ -240,6 +244,6 @@ function ProjectCard({ project, featured = false }: { project: Project; featured
           )}
         </div>
       </div>
-    </div>
+    </ProjectTiltCard>
   );
 }

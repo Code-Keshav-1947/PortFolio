@@ -5,6 +5,7 @@ import { portfolioData } from "@/data/portfolioData";
 import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { Copy, Check, Send, MapPin, Clock, ArrowUpRight } from "lucide-react";
 import { SectionReveal } from "@/components/SectionReveal";
+import { ContactVisual3D } from "@/components/3d/ContactVisual3D";
 
 export function Contact() {
   const [copied, setCopied] = useState(false);
@@ -55,7 +56,10 @@ export function Contact() {
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-24 sm:pt-32 relative">
         {/* Big CTA Headline */}
         <SectionReveal>
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 flex flex-col items-center">
+            <div className="mb-4">
+              <ContactVisual3D />
+            </div>
             <div className="section-label mb-5 mx-auto w-fit">
               <span>Let&apos;s Connect</span>
             </div>
@@ -194,7 +198,7 @@ export function Contact() {
                       id="contact-name"
                       type="text"
                       required
-                      placeholder="Jane Doe"
+                      placeholder="E.g., Jane Doe"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -214,7 +218,7 @@ export function Contact() {
                       id="contact-email"
                       type="email"
                       required
-                      placeholder="jane@example.com"
+                      placeholder="e.g., jane@example.com"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
@@ -234,7 +238,7 @@ export function Contact() {
                   <input
                     id="contact-subject"
                     type="text"
-                    placeholder="Project Inquiry / Technical Collaboration"
+                    placeholder="e.g., Project Inquiry / Technical Collaboration"
                     value={formData.subject}
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
